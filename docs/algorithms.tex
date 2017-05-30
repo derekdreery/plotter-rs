@@ -2,6 +2,7 @@
 
 \usepackage{amsfonts}
 \usepackage{graphicx}
+\usepackage{color}
 
 %opening
 \title{Algorithms}
@@ -48,7 +49,18 @@ First we derive a formula for the points of our surface, then we implement this 
 	\def\svgwidth{200pt}
 	\input{line_end.pdf_tex}
 	\caption{Visual representation of end point render}
+	\label{fig:linegraph-exterior}
 \end{figure}
+
+Using the definitions of $v$ and $v'$ in figure~\ref{fig:linegraph-exterior}, we can derive $v'$ from $v$, and then calculate the coordinates of the point.
+
+We know that $v' \cdot v = 0$ and $v' \cdot v' = w^2$ where $w$ is again width. This is equivalent to 
+\[v_y v'_y + v_x v'_x = 0 \qquad v'_y = -\frac{v_x}{v_y} v'_x  \qquad v'_x = -\frac{v_y}{v_x} v'_y\]
+and \[(v'_y)^2 + (v'_x)^2 = w^2\] which gives 
+\[\left(\frac{v_x}{v_y}\right)^2 (v'_x)^2 + (v'_x)^2 = w^2 \qquad
+\left(\frac{v_y}{v_x}\right)^2 (v'_y)^2 + (v'_y)^2 = w^2
+\] which after some rearranging gives 
+\[v' = (v_x', v_y') = \left( \pm \frac{w v_y}{|v|}\ ,\  \mp \frac{w v_x}{|v|}\right)\]. The two solutions correspond to the two points we need. It is important to note that the two values have different signs - if the signs of $v_y$ and $v_x$ differ (i.e. negative gradient) then the sign of $v'_x$ and $v'_y$ will be the same.
 
 \begin{thebibliography}{9}
 	\bibitem{stroke-linejoin}
