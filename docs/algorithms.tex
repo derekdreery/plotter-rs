@@ -1,6 +1,7 @@
 \documentclass[]{article}
 
 \usepackage{amsfonts}
+\usepackage{graphicx}
 
 %opening
 \title{Algorithms}
@@ -40,9 +41,14 @@ We should be able to use the SVG algorithm as a guide, but we want to make sure 
 Rust iterators should help us out here.
 
 \subsection{Derivation and Algorithm}
-First we derive a formula for the points of our surface, then we implement this efficiently. Each point from the input will have 2-3 points in the output (3 if we need to bevel). We handle the end point formula first since this is a special case and more simple than the interior point formula.
+First we derive a formula for the points of our surface, then we implement this efficiently. Each point from the input will have 2-3 points in the output (3 if we need to bevel). We handle the end point formula first since this is a special case and simpler than the interior point formula.
 
-
+\begin{figure}[!htbp]
+	\centering
+	\def\svgwidth{200pt}
+	\input{line_end.pdf_tex}
+	\caption{Visual representation of end point render}
+\end{figure}
 
 \begin{thebibliography}{9}
 	\bibitem{stroke-linejoin}
