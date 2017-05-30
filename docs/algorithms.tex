@@ -1,0 +1,55 @@
+\documentclass[]{article}
+
+\usepackage{amsfonts}
+
+%opening
+\title{Algorithms}
+\author{Richard Dodd}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is just a description of the algorithms used in plotter.
+\end{abstract}
+
+\section{Line Algorithm}
+The line algorithm \emph{input} is a ordered list of points $(x, y)$ where $x, y \in [-1, 1]$, and the line width $w$ with $0 < w << 1$ ($w$ should be much less than $1$, a value like $0.01$ may be satisfactory). If points are outside this range, they need to be scaled before this algorithm is used. The \emph{output} is a vector of points, forming quadrilaterals as follows: the number of points will be $2n| n \in \mathbb{N}_0$, and the quadrilaterals are $(p_{2k}, p_{2k+1}, p_{2k+2}, p_{2k+3}) | k \in \mathbb{N}_0, 2k+3 \le n$, for example $(p_1, p_2, p_3, p_4), (p_3, p_4, p_5, p_6) \dots$.
+
+No points and one point are special cases that both produce no quadrilaterals. A single point can be shown with a circle of radius $w$ (width), but that is not handled in this algorithm.
+
+\subsection{Expected output}
+Here I detail what properties the output should have:
+\begin{itemize}
+	\item All points should be joined by lines.
+	\item Lines should have even thickness.
+	\item There should be a maximum of one quad per point (above the first)
+	\item Asymptotic blow-up for parallel lines should be mitigated. (This may mean more than one quad because of bevelling)
+\end{itemize}
+
+These kinds of lines are already well handled by the SVG format. It makes sense to use a similar algorithm to SVG, except that we hard-code to use miter style linejoins \cite{stroke-linejoin} with a limit \cite{stroke-miterlimit} of about 20 degrees, at which point we bevel.
+
+We should be able to use the SVG algorithm as a guide, but we want to make sure our algorithm has the following properties:
+\begin{itemize}
+	\item Minimal clock cycles, max speed.
+	\item Minimal memory footprint, compact representation.
+	\item CPU cache friendly (use the stack, heap use should be sequential and local).
+	\item Any allocation happens once, no expensive \texttt{Vec} resizes.
+\end{itemize}
+Rust iterators should help us out here.
+
+\subsection{Derivation and Algorithm}
+First we derive a formula for the points of our surface, then we implement this efficiently. Each point from the input will have 2-3 points in the output (3 if we need to bevel). We handle the end point formula first since this is a special case and more simple than the interior point formula.
+
+
+
+\begin{thebibliography}{9}
+	\bibitem{stroke-linejoin}
+	\texttt{https://mdn.mozillademos.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin}
+	
+	\bibitem{stroke-miterlimit}
+	\texttt{https://mdn.mozillademos.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit}
+\end{thebibliography}
+
+\end{document}
