@@ -1,8 +1,14 @@
 \documentclass[]{article}
 
+\usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{graphicx}
 \usepackage{color}
+\usepackage{listings}
+\usepackage{bm}
+
+%custom commands
+\newcommand{\bmups}{\bm{\upsilon}}
 
 %opening
 \title{Algorithms}
@@ -14,6 +20,8 @@
 
 \begin{abstract}
 This is just a description of the algorithms used in plotter.
+
+TODO floating point stability
 \end{abstract}
 
 \section{Line Algorithm}
@@ -44,6 +52,8 @@ Rust iterators should help us out here.
 \subsection{Derivation and Algorithm}
 First we derive a formula for the points of our surface, then we implement this efficiently. Each point from the input will have 2-3 points in the output (3 if we need to bevel). We handle the end point formula first since this is a special case and simpler than the interior point formula.
 
+\subsubsection{End Points}
+
 \begin{figure}[!htbp]
 	\centering
 	\def\svgwidth{200pt}
@@ -55,19 +65,121 @@ First we derive a formula for the points of our surface, then we implement this 
 Using the definitions of $v$ and $v'$ in figure~\ref{fig:linegraph-exterior}, we can derive $v'$ from $v$, and then calculate the coordinates of the point.
 
 We know that $v' \cdot v = 0$ and $v' \cdot v' = w^2$ where $w$ is again width. This is equivalent to 
-\[v_y v'_y + v_x v'_x = 0 \qquad v'_y = -\frac{v_x}{v_y} v'_x  \qquad v'_x = -\frac{v_y}{v_x} v'_y\]
-and \[(v'_y)^2 + (v'_x)^2 = w^2\] which gives 
-\[\left(\frac{v_x}{v_y}\right)^2 (v'_x)^2 + (v'_x)^2 = w^2 \qquad
-\left(\frac{v_y}{v_x}\right)^2 (v'_y)^2 + (v'_y)^2 = w^2
-\] which after some rearranging gives 
-\[v' = (v_x', v_y') = \left( \pm \frac{w v_y}{|v|}\ ,\  \mp \frac{w v_x}{|v|}\right)\]. The two solutions correspond to the two points we need. It is important to note that the two values have different signs - if the signs of $v_y$ and $v_x$ differ (i.e. negative gradient) then the sign of $v'_x$ and $v'_y$ will be the same.
+\begin{equation}
+v_y v'_y + v_x v'_x = 0 \qquad v'_y = -\frac{v_x}{v_y} v'_x  \qquad v'_x = -\frac{v_y}{v_x} v'_y
+\end{equation}
+and 
+\begin{equation}
+(v'_y)^2 + (v'_x)^2 = w^2
+\end{equation}
+which gives 
+\begin{equation*}
+\left(\frac{v_x}{v_y}\right)^2 (v'_x)^2 + (v'_x)^2 = w^2 \qquad \left(\frac{v_y}{v_x}\right)^2 (v'_y)^2 + (v'_y)^2 = w^2
+\end{equation*} 
+which after some rearranging gives 
+\begin{equation}
+v' = (v_x', v_y') = \left( \pm w \frac{v_y}{|v|}\ ,\  \mp w \frac{v_x}{|v|}\right)
+\end{equation}
+. The two solutions correspond to the two points we need. It is important to note that the two values have different signs - if the signs of $v_y$ and $v_x$ differ (i.e. negative gradient) then the sign of $v'_x$ and $v'_y$ will be the same.
+
+Now we substitute our vectors for points: lets label the start of $v$ as $v_s$, the end of $v$ as $v_e$, and the ends of $v'$ as $v'_e$ (this represents 2 points). Then $v = v_e - v_s$ and $v' = v'_e - v_s$. Plugging into the above equation gives
+\begin{equation}
+(v'_{ex}, v'_{ey}) = \left(v_{sx} \pm w \frac{v_{ey} - v_{sy}}{|v|}\ ,\ v_{sy} \mp w \frac{v_{ex} - v_{sx}}{|v|}\right)
+\end{equation}
+which is our formula for the line points.
+Here is the formula in python:
+\lstset{language=Python}
+\begin{lstlisting}
+def line_points(line, width=0.01):
+     vsx = line[0][0]
+     vsy = line[0][1]
+     vex = line[1][0]
+     vey = line[1][1]
+     vlen = sqrt((vex - vsx) ** 2 + (vey - vsy) ** 2)
+     
+     vyn = (vey - vsy) / vlen
+     vxn = (vex - vsx) / vlen
+     return [[vsx + width * vyn, vsy - width * vxn], 
+     	[vsx - width * vyn, vsy + width * vxn]]
+\end{lstlisting}
+and figure \ref{fig:python_impl} is a graph of the resulting line thickness.
+
+\begin{figure}[!htbp]
+	\centering
+	\def\svgwidth{300pt}
+	\input{python_impl.pdf_tex}
+	\caption{Graph of python implementation (Line is $(0.2, 0.2) \rightarrow (0.8, 0.8)$, width is $0.01$)}
+	\label{fig:python_impl}
+\end{figure}
+
+\subsubsection{Interior Points}
+
+Now we need to derive a formula for interior points. These points depend on the point itself and one point either side of it. Figure \ref{fig:linegraph-interior} shows how we want to construct the line. See this figure for our labelling, noting that the subscripts are chosen so $0$ is the point before, and $1$ is the current point. We want to find the co-ordinates of $p_i$, the point where the 2 exterior lines meet.
+
+\begin{figure}[!htbp]
+	\centering
+	\def\svgwidth{300pt}
+	\input{line_interior.pdf_tex}
+	\caption{An interior point}
+	\label{fig:linegraph-interior}
+\end{figure}
+
+We will exploit the normals at the points as marked to calculate the two points we will draw to. The procedure at a high level is
+
+\begin{itemize}
+	\item Calculate $q_0$ and $q_1$ using the fact that $\bm{\upsilon}_0 \cdot \bm{\upsilon}_p = 0$ and $\bm{\upsilon}_0 \cdot \bm{\upsilon}_0 = |\bm{\upsilon}_0|^2 = w^2$, with similar formulae for the next point $p_2$.
+	\item Use these points to give y-intercept\footnote{Gradient is the same as for the line itself.} for the boundary line, handling a vertical line with no y-intercept.
+	\item Do the same for the point after the current point ($p_2$, not shown).
+	\item Find the point where the lines meet (note special case where lines are parallel).
+	\item Convert mitre to bevel if necessary (if the point is too far from $p_1$)\footnote{We will skip this step for now, but when we include it we may have 2 data points rather than 1 for this point, and this will need to be considered during triangulation.}.
+	\item Compose all these formulas and see how to minimize work done (cancel where possible etc.)
+\end{itemize}
+
+For the derivation, let $\bm{\upsilon}_a$ and $p_a$ be defined as in figure \ref{fig:linegraph-interior} for various $a$, and define $\bm{\upsilon}_{ax}$ and $p_{ax}$ as the $x$ components of $\bm{\upsilon}$ and $p$, with $y$ components defined similarly. Also define $m = \frac{\bm{\upsilon}_{py}}{\bm{\upsilon}_{px}}$ as the gradient of $\bm{\upsilon}_p$. Then the following are true:
+
+\begin{equation}\label{eq:int_dot}
+\bmups_p \cdot \bmups_0 = 0 \qquad \bmups_p \cdot \bmups_1 = 0
+\end{equation}
+\begin{equation}
+\bmups_0 \cdot \bmups_0 = |\bmups_0|^2 = w^2 \qquad \bmups_1 \cdot \bmups_1 = |\bmups_1|^2 = w^2
+\end{equation}
+Taking the $\bmups_0$ case in equation~\ref{eq:int_dot} ($\bmups_1$ is similar),
+\begin{equation*}
+\bmups_{0x} \bmups_{px} + \bmups_{0y} \bmups_{py} = 0
+\end{equation*}
+so
+\begin{equation}
+\bmups_{0x} + m \bmups_{0y} = 0 \qquad \bmups_{0y} + m^{-1} \bmups_{0x} = 0 \qquad \bmups_{0x}^2 + \bmups_{0y}^2 = w^2
+\end{equation}
+and solving for $\bmups_{0x}$ and $\bmups_{0y}$ gives
+\begin{equation}
+\bmups_{0y}^2 = \frac{w^2}{m^2 + 1} \qquad \bmups_{0x}^2 = \frac{w^2}{m^{-2} + 1}
+\end{equation}
+so
+\begin{equation}
+q_{0y} = p_{0y} \pm \frac{w}{\sqrt{m^2 + 1}} \qquad q_{0x} = p_{0x} \pm \frac{w}{\sqrt{m^{-2} + 1}}
+\end{equation}
+. Note that there are always 2 solutions; this corresponds to both sides of the line (although we only marked one of them on the figure). Now that we know a point on the line, and the gradient, we have an equation for the line:
+\begin{equation}\label{eq:interiorline0}
+y - p_{0y} \mp \frac{w}{\sqrt{m_0^2+1}} = m_0x - m_0p_{0x} \mp \frac{m_0w}{\sqrt{m_0^{-2}+1}}
+\end{equation}
+where we have labelled $m$ as $m_0$. Now we can repeat this for the point after (labelled $p_2$). Let's relabel the $m$ above as $m_0$, and the $m$ for $p_2$ as $m_1$. Then we also have
+\begin{equation}\label{eq:interiorline1}
+y - p_{1y} \mp \frac{w}{\sqrt{m_1^2+1}} = m_1x - m_1p_{1x} \mp \frac{m_1w}{\sqrt{m_1^{-2}+1}}
+\end{equation}
+and the point the lines intercept ($p_i$) is given by solving (\ref{eq:interiorline0}) and (\ref{eq:interiorline1}), giving
+\begin{align}
+(m_1 - m_0)p_{ix} &= m_0p_{0x} - m_1p_{1x} \pm \frac{m_0w}{\sqrt{m_0^{-2}+1}} \mp \frac{m_1w}{\sqrt{m_1^{-2}+1}} \\ 
+&+ p_{1y} - p_{0y} \pm \frac{w}{\sqrt{m^2_1 + 1}} \mp \frac{w}{\sqrt{m_0^2 + 1}}
+\end{align}
+for $p_{ix}$, and
 
 \begin{thebibliography}{9}
 	\bibitem{stroke-linejoin}
-	\texttt{https://mdn.mozillademos.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin}
+	\texttt{https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin}
 	
 	\bibitem{stroke-miterlimit}
-	\texttt{https://mdn.mozillademos.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit}
+	\texttt{https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit}
 \end{thebibliography}
 
 \end{document}

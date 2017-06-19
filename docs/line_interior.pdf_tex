@@ -1,0 +1,69 @@
+%% Creator: Inkscape inkscape 0.92.1, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'line_interior.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{440.91362bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.77641531)%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{line_interior.pdf}}%
+    \put(0.10237275,0.06748752){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$p_0$}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{line_interior.pdf}}%
+    \put(0.13371401,0.22169627){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$w$}}}%
+    \put(0.4825677,0.49838399){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$p_1$}}}%
+    \put(0.0162781,0.08029005){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\bm{\upsilon}_0$}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{line_interior.pdf}}%
+    \put(0.16248901,0.40179898){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\bm{\upsilon}_{q}$}}}%
+    \put(0.46825753,0.69179022){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$p_i$}}}%
+    \put(0.02306549,0.14747032){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$q_0$}}}%
+    \put(0.33691526,0.60062893){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$q_1$}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{line_interior.pdf}}%
+    \put(0.24969024,0.31639709){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\bm{\upsilon}_p$}}}%
+    \put(0.30125295,0.08352497){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{}}}%
+    \put(0.42632868,0.55946406){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\bm{\upsilon}_1$}}}%
+    \put(0.88264102,0.10805388){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$p_2$}}}%
+  \end{picture}%
+\endgroup%
